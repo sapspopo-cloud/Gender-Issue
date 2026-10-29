@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金聲時空事務所：金門話諺語與平權大解密</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+            background-color: #1a0f0a;
+            color: #2b1b17;
+        }
+
+        #game-app {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: #1a0f0a;
+            position: relative;
+        }
+
+        header {
+            background: linear-gradient(180deg, #701c15 0%, #4a120d 100%);
+            color: #fff8dc;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #d4af37;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .brand-title {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #ffd700;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .brand-sub {
+            font-size: 0.75rem;
+            color: #f7e7ce;
+        }
+
+        .hud-info {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .stats-badge {
+            background-color: rgba(40, 10, 8, 0.85);
+            padding: 5px 12px;
+            border-radius: 18px;
+            border: 1.5px solid #d4af37;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #ffd700;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        main {
+            flex: 1;
+            width: 100%;
+            height: calc(100vh - 80px);
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* 首頁登錄卡片 */
+        .welcome-card {
+            background: linear-gradient(135deg, #fffaf0 0%, #f4e4bc 100%);
+            border: 5px solid #701c15;
+            outline: 2px solid #d4af37;
+            border-radius: 20px;
+            padding: 28px 24px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            max-width: 540px;
+            margin: auto;
+            z-index: 5;
+        }
+
+        .welcome-title {
+            font-size: 1.8rem;
+            color: #701c15;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .welcome-desc {
+            font-size: 0.95rem;
+            color: #4a2e1a;
+            line-height: 1.5;
+            margin-bottom: 18px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 360px;
+            margin: 0 auto 20px auto;
+            text-align: left;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #701c15;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #cd853f;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            background-color: #fff;
+        }
+
+        .btn {
+            background: linear-gradient(180deg, #8c271e 0%, #61130d 100%);
+            color: #fff8dc;
+            border: 2px solid #d4af37;
+            padding: 10px 22px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.15);
+        }
+
+        /* 地圖區域樣式 */
+        .map-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #map-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* 闖關介面 Modal */
+        .dialog-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 5, 3, 0.75);
+            backdrop-filter: blur(3px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            z-index: 20;
+            animation: fadeIn 0.2s;
+        }
+
+        .dialog-modal.active {
+            display: flex;
+        }
+
+        .dialog-card {
+            background: linear-gradient(135deg, #fffcf5 0%, #f5e8c7 100%);
+            border: 4px solid #701c15;
+            outline: 2px solid #d4af37;
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .scenario-box {
+            background-color: rgba(112, 28, 21, 0.08);
+            border-left: 4px solid #701c15;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #4a2e1a;
+            font-style: italic;
+        }
+
+        .proverb-card {
+            background: linear-gradient(135deg, #3d1c10 0%, #210d07 100%);
+            color: #fff8dc;
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #d4af37;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .proverb-zh {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #ffd700;
+            margin-bottom: 2px;
+            letter-spacing: 1px;
+        }
+
+        .proverb-tl {
+            font-size: 0.85rem;
+            color: #deb887;
+            font-family: monospace;
+            margin-bottom: 8px;
+        }
+
+        .btn-audio {
+            background: linear-gradient(180deg, #b8860b 0%, #8b6508 100%);
+            color: #fff;
+            border: 1px solid #ffd700;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-audio:hover {
+            transform: scale(1.05);
+        }
+
+        .question-title {
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: #2b1b17;
+            margin-top: 2px;
+        }
+
+        .option-btn {
+            width: 100%;
+            background-color: #ffffff;
+            color: #2b1b17;
+            border: 2px solid #cd853f;
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-btn:hover {
+            background-color: #fff8dc;
+            border-color: #701c15;
+            transform: translateX(4px);
+        }
+
+        .option-key {
+            background-color: #701c15;
+            color: #fff8dc;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        /* 3 階提示卡片 */
+        .scaffold-card {
+            background-color: #fff8dc;
+            border: 2px dashed #d4af37;
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: #4a2e1a;
+            font-size: 0.88rem;
+            line-height: 1.45;
+        }
+
+        /* 證書頁 */
+        .certificate-card {
+            background: linear-gradient(135deg, #fffcf5 0%, #f5e8c7 100%);
+            border: 8px double #701c15;
+            outline: 2px solid #d4af37;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            max-width: 650px;
+            margin: auto;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+
+        .certificate-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #701c15;
+            margin-bottom: 6px;
+        }
+
+        .cert-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #b8860b;
+            text-decoration: underline;
+        }
+
+        .cert-details {
+            margin: 14px 0;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            color: #333;
+        }
+
+        footer {
+            background-color: #120a07;
+            color: #a88a6d;
+            text-align: center;
+            padding: 6px;
+            font-size: 0.72rem;
+            border-top: 1px solid #3d1c10;
+        }
+
+        @media print {
+            body { background: #fff !important; }
+            header, footer, #screen-start, #screen-game, .btn-action-group { display: none !important; }
+            #game-app, main, #screen-result {
+                background: #fff !important;
+                border: none !important;
+                padding: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+            }
+            .certificate-card { border: 6px double #701c15 !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-app">
+        <header>
+            <div>
+                <div class="brand-title">🏛️ 金聲時空事務所</div>
+                <div class="brand-sub">金門話諺語 × 性別平權地圖探險 RPG</div>
+            </div>
+            <div class="hud-info">
+                <div class="stats-badge" id="hud-user">探員：尚未登錄</div>
+                <div class="stats-badge" id="hud-stats">進度：關卡 1 / 7</div>
+            </div>
+        </header>
+
+        <main>
+            <!-- 1. 首頁登錄畫面 -->
+            <div id="screen-start" class="screen active">
+                <div class="welcome-card">
+                    <div style="font-size: 2.8rem; margin-bottom: 4px;">🏞️</div>
+                    <h1 class="welcome-title">金門聚落平權大冒險</h1>
+                    <p class="welcome-desc">
+                        歡迎來到金門時空地圖！化身為時空小偵探，踏遍閩南紅磚古厝、宗祠、老街與燕尾大厝。<br>
+                        透過道地金門話發音與 3 階平權思辨，破解 7 大歷史聚落！
+                    </p>
+
+                    <div class="input-group">
+                        <label for="player-school">學校名稱（選填）：</label>
+                        <input type="text" id="player-school" class="input-field" placeholder="例如：金門國小 / 金城國中">
+                        <label for="player-name">探員姓名（必填）：</label>
+                        <input type="text" id="player-name" class="input-field" placeholder="請輸入你的姓名">
+                    </div>
+
+                    <button class="btn" id="btn-start-game">
+                        🗺️ 進入地圖探索闖關
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. 地圖探索 RPG 畫面 -->
+            <div id="screen-game" class="screen">
+                <div class="map-container">
+                    <canvas id="map-canvas"></canvas>
+
+                    <!-- 闖關彈窗 Modal -->
+                    <div id="dialog-modal" class="dialog-modal">
+                        <div class="dialog-card">
+                            <div class="scenario-box" id="level-scenario">情境載入中...</div>
+
+                            <div class="proverb-card">
+                                <div class="proverb-zh" id="level-proverb-zh">諺語載入中...</div>
+                                <div class="proverb-tl" id="level-proverb-tl">臺羅拼音載入中...</div>
+                                <button class="btn-audio" id="btn-play-audio">🔊 點擊聆聽金門話發音</button>
+                            </div>
+
+                            <div class="question-title" id="level-question">問題載入中...</div>
+
+                            <div id="options-container" style="display: flex; flex-direction: column; gap: 8px;"></div>
+
+                            <!-- 3 階漸進式鷹架提示區 -->
+                            <div id="scaffold-box" class="scaffold-card" style="display: none;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <strong style="color: #701c15;">💡 平權導師提示（<span id="hint-level-badge">提示 1/3</span>）</strong>
+                                    <button class="btn" id="btn-next-hint" style="padding: 3px 8px; font-size: 0.72rem; background: #b8860b; border: none;">開啟下一個提示 🔍</button>
+                                </div>
+                                <div id="hint-content-text">提示內容...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 通關證書與列印畫面 -->
+            <div id="screen-result" class="screen">
+                <div class="certificate-card">
+                    <div style="font-size: 2.2rem; margin-bottom: 2px;">📜</div>
+                    <div class="certificate-title">金門話性別平權闖關榮譽證書</div>
+                    
+                    <div class="cert-details">
+                        茲證明 <span class="cert-name" id="cert-display-school"></span> 
+                        <span class="cert-name" id="cert-display-name">探員</span><br>
+                        順利踏遍金門 7 大聚落景點，完成《金聲時空事務所》性別平權試煉！<br><br>
+                        <strong>榮譽稱號：</strong> <span style="color: #701c15; font-weight: bold;" id="cert-display-rank">金門平權高級調查員 🌟</span><br>
+                        <strong>順利通關：</strong> <span id="cert-display-score">7</span> / 7 關卡
+                    </div>
+
+                    <p style="font-size: 0.88rem; color: #555;">
+                        特頒此證，表彰其精通母語文化並具備優異之現代性別平權思辨素養！
+                    </p>
+
+                    <div style="display: flex; justify-content: space-around; margin-top: 16px; padding-top: 10px; border-top: 1.5px dashed #cd853f; font-size: 0.8rem; color: #666;">
+                        <div>核發單位：金聲時空事務所</div>
+                        <div>發證日期：<span id="cert-display-date"></span></div>
+                    </div>
+                </div>
+
+                <div class="btn-action-group" style="display: flex; justify-content: center; gap: 14px; margin-top: 10px; z-index: 5;">
+                    <button class="btn" id="btn-print-cert" style="background: linear-gradient(180deg, #2e8b57 0%, #1c5836 100%); border-color: #3cb371;">🖨️ 列印 / 儲存 PDF 證書</button>
+                    <button class="btn" id="btn-restart-game">🔄 重新開始挑戰</button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            金聲時空事務所 © 金門話本土語文與性別平等教育專案
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 7 大題庫資料與 3 階獨立提示
+            const gameData = [
+                {
+                    id: 1,
+                    audio: "audio_01.mp3",
+                    locationName: "1. 古厝埕",
+                    icon: "🏠",
+                    x: 140, y: 380,
+                    theme: "傳統宿命與女性命運觀",
+                    proverb_zh: "查某囡仔人，菜籽命。",
+                    proverb_tl: "tsa-bóo gín-á-lâng, tshài-tsí-miā.",
+                    scenario: "來到紅磚古厝埕前，聽到長輩正在感嘆村裡女孩的未來...",
+                    question: "這句俗諺將女性比喻為「油麻菜籽」，隨風飄散、無法自主，其隱含的傳統社會意涵為何？",
+                    options: [
+                        { key: "A", text: "鼓勵女性要勇敢創業、開創自己的事業版圖。", correct: false },
+                        { key: "B", text: "反映父權社會認為女性命運隨婚姻浮沉、無自主選擇權的宿命觀。", correct: true },
+                        { key: "C", text: "讚美金門女性如油麻菜籽般生命力強韌，適合種植農作。", correct: false }
+                    ],
+                    explanation: "傳統社會常以「油麻菜籽」形容女性無法自主決定人生。但在現代平權觀點中，每個人的命運都掌握在自己手中，不分性別皆能自我實現！",
+                    hints: [
+                        "【提示 1/3】想想看，油麻菜籽隨風飄到哪裡就落在哪裡，這跟古代女性的『婚姻』有什麼關係？",
+                        "【提示 2/3】這是一句帶有舊時代無奈宿命感的俗諺，暗示女性婚後『嫁好壞全憑運氣』。",
+                        "【提示 3/3】正確答案指向傳統父權社會對女性命運缺乏自主權的描寫。"
+                    ]
+                },
+                {
+                    id: 2,
+                    audio: "audio_02.mp3",
+                    locationName: "2. 宗祠大廳",
+                    icon: "🏛️",
+                    x: 300, y: 220,
+                    theme: "宗法社會與繼承文化",
+                    proverb_zh: "查埔囡仔得田園，查某囝得嫁妝。",
+                    proverb_tl: "ta-poo-gín-á tit tshân-hn̂g, tsa-bóo-kiánn tit kè-tsng.",
+                    scenario: "來到莊嚴的宗祠大廳，看見長輩們正在分配家族的財產與嫁妝...",
+                    question: "關於這句俗諺所反映的傳統社會資源分配制度，下列敘述何者正確？",
+                    options: [
+                        { key: "A", text: "男女獲得完全均等的田產與嫁妝，體現絕對平權。", correct: false },
+                        { key: "B", text: "反映昔日宗法社會『男丁繼承家業房產，女兒則以嫁妝為主』的分配模式。", correct: true },
+                        { key: "C", text: "形容女兒出嫁時會把家裡的田地全部搬光。", correct: false }
+                    ],
+                    explanation: "昔日宗法社會規定由男性繼承不動產（田園），而女性則獲得嫁妝。但在現代民法與平權保障下，男女皆享有平等的財產繼承權。",
+                    hints: [
+                        "【提示 1/3】注意句中的『田園』與『嫁妝』分別對應到誰？",
+                        "【提示 2/3】傳統家族中，土地房產通常由誰來繼承？女兒出嫁時則帶什麼？",
+                        "【提示 3/3】這反映了舊時代財產分配的性別差異，現代法律已修法保障平權。"
+                    ]
+                },
+                {
+                    id: 3,
+                    audio: "audio_03.mp3",
+                    locationName: "3. 老街市集",
+                    icon: "🏪",
+                    x: 460, y: 370,
+                    theme: "婚姻權力結構與平權翻轉",
+                    proverb_zh: "某會，不如翁𠢕。",
+                    proverb_tl: "bóo ē, put-lû ang gâu.",
+                    scenario: "走進熱鬧的老街市集，大家正在討論夫妻之間的相處與能力...",
+                    question: "這句俗諺反映了傳統哪一種刻板印象？現代平權觀點又該如何看待？",
+                    options: [
+                        { key: "A", text: "認為妻子能力再好也比不上丈夫，受『男主外、女主內』觀念影響。", correct: true },
+                        { key: "B", text: "鼓勵夫妻兩人要互相合作、截長補短。", correct: false },
+                        { key: "C", text: "讚美金門女性個個精明能幹，超越男性。", correct: false }
+                    ],
+                    explanation: "傳統認為妻子再厲害也比不上丈夫能幹，隱含貶低女性能力的父權思維。現代平權則強調『某翁相惜』、夫妻雙方各展所長！",
+                    hints: [
+                        "【提示 1/3】句中的『某』是妻子，『翁』是丈夫，『𠢕』是指能幹。",
+                        "【提示 2/3】這句話在暗示『就算老婆很厲害，也比不上老公』，是一種傳統偏見。",
+                        "【提示 3/3】現代社會強調性別平等與多元能力的發揮，不再用單一性別來衡量成就。"
+                    ]
+                },
+                {
+                    id: 4,
+                    audio: "audio_04.mp3",
+                    locationName: "4. 金門校園",
+                    icon: "🏫",
+                    x: 620, y: 190,
+                    theme: "育兒新生代與打破重男輕女",
+                    proverb_zh: "查埔也著疼，查某也著晟。",
+                    proverb_tl: "ta-poo iā tio̍h thiànn, tsa-bóo iā tio̍h tshiânn.",
+                    scenario: "來到充滿笑聲的金門校園，聽見老師與家長正在傳唱這首金門童謠...",
+                    question: "這句現代金門話俗諺傳達了什麼樣的核心價值？",
+                    options: [
+                        { key: "A", text: "延續傳統『海水黑黑，查某換查埔』的重男輕女觀念。", correct: false },
+                        { key: "B", text: "強調養育小孩不分男女，男孩女孩都要一樣用心疼愛與扶養，落實性別平權。", correct: true },
+                        { key: "C", text: "只規定要特別照顧男生，女生要放任不管。", correct: false }
+                    ],
+                    explanation: "太棒了！這正是我們打破重男輕女、推動性別平等的最佳金門話代表作——男孩女孩攏總愛疼惜！",
+                    hints: [
+                        "【提示 1/3】注意句首的『查埔』與『查某』，這句話同時提到這兩者。",
+                        "【提示 2/3】『疼』與『晟』代表照顧與扶育，這句話是要大家偏心還是公平？",
+                        "【提示 3/3】這句俗諺正是倡導『性別平等』，打破過去『重男輕女』的關鍵語句。"
+                    ]
+                },
+                {
+                    id: 5,
+                    audio: "audio_05.mp3",
+                    locationName: "5. 廟口算命攤",
+                    icon: "⛩️",
+                    x: 770, y: 360,
+                    theme: "破除算命迷信與無端標籤",
+                    proverb_zh: "折手查埔做相公，斷手查某守空房。",
+                    proverb_tl: "tsih-tshiú ta-poo tsuè siong-kong, tńg-tshiú tsa-bóo siú khang-pông.",
+                    scenario: "來到村莊廟口，聽到算命師正指著掌紋大放厥詞...",
+                    question: "這句俗諺反映了傳統算命對男女手相的雙重標準，其不平等之處在於？",
+                    options: [
+                        { key: "A", text: "將男人斷掌視為富貴官相，卻將女人斷掌貼上剋夫與守空房的負面標籤。", correct: true },
+                        { key: "B", text: "認為男女手相完全相同，沒有任何區別。", correct: false },
+                        { key: "C", text: "鼓勵所有人都去學習算命來決定職業。", correct: false }
+                    ],
+                    explanation: "傳統算命對性別充滿雙重標準，將身體特徵賦予不平等的詛咒。現代社會早已破除這種迷信與性別歧視！",
+                    hints: [
+                        "【提示 1/3】前半句說男人斷掌會『做相公（官）』，後半句說女人斷掌會怎樣？",
+                        "【提示 2/3】這顯示了傳統社會對女性的苛刻與無端指責。",
+                        "【提示 3/3】這是不科學的迷信，現代應以能力與人格來評價一個人。"
+                    ]
+                },
+                {
+                    id: 6,
+                    audio: "audio_06.mp3",
+                    locationName: "6. 喜慶婚宴廳",
+                    icon: "🏮",
+                    x: 910, y: 210,
+                    theme: "多元婚配尊重與年齡平權",
+                    proverb_zh: "娶某大姊，較好坐金交椅。",
+                    proverb_tl: "Tshua bóo tuā-tsí, khah hó tsēr kim-kau-í.",
+                    scenario: "喜宴廳張燈結彩，大家正熱烈討論著這對新人的年齡組合...",
+                    question: "這句俗諺用來形容娶年長太太的好處，對現代多元婚姻觀念有何啟發？",
+                    options: [
+                        { key: "A", text: "證明年齡差距會導致婚姻絕對無法幸福。", correct: false },
+                        { key: "B", text: "肯定年長女性在婚姻中帶來的成熟照顧與智慧，打破傳統『男大女小』的單一框架。", correct: true },
+                        { key: "C", text: "規定以後結婚男生必須比女生大十歲。", correct: false }
+                    ],
+                    explanation: "這句俗諺展現了民間幽默與對年長女性成熟魅力的肯定，打破了傳統必須『男大女小』的刻板限制！",
+                    hints: [
+                        "【提示 1/3】句中的『某大姊』是指太太比先生年紀大。",
+                        "【提示 2/3】『金交椅』比喻尊貴舒適，代表娶年長太太其實有很多美滿之处。",
+                        "【提示 3/3】愛情與婚姻不應受到年齡順序的侷限，互相呵護最重要。"
+                    ]
+                },
+                {
+                    id: 7,
+                    audio: "audio_07.mp3",
+                    locationName: "7. 冬日燕尾厝",
+                    icon: "🏡",
+                    x: 1040, y: 370,
+                    theme: "家務分工平權與去刻板化",
+                    proverb_zh: "九月九爁日，十月日生翼，十一月荏懶查某理袂直。",
+                    proverb_tl: "káu-ge̍rh káu na̍h-lit, tsa̍p-ge̍rh lit sinn sit, tsa̍p-it-ge̍rh lám-nuā tsa-bóo lí buē tsi̍t.",
+                    scenario: "冬至時節，寒風吹起，燕尾大厝裡長輩們正在抱怨冬日家務繁重...",
+                    question: "這句俗諺將冬季白日短暫導致家務做不完，歸咎於女性「荏懶（懶惰）」，現代平權觀念應如何調整？",
+                    options: [
+                        { key: "A", text: "家務勞動應該由全家人共同分擔，不應將季節壓力全數歸咎或標籤化女性。", correct: true },
+                        { key: "B", text: "冬天本來就應該停止所有家事與工作。", correct: false },
+                        { key: "C", text: "證明女性在冬天確實比較容易偷懶。", correct: false }
+                    ],
+                    explanation: "冬季白晝縮短、家務繁重是客觀環境的現實，將其扣上『荏懶查某』的帽子是不公平的刻板印象。現代家庭提倡『家務分工，共擔責任』！",
+                    hints: [
+                        "【提示 1/3】句尾出現了『荏懶查某』，把家事沒做完怪罪在誰身上？",
+                        "【提示 2/3】冬季白天變短，工作時間被壓縮，這是自然現象還是個人懶惰？",
+                        "【提示 3/3】現代家庭強調平權與分工，家事不該只是某個性別的責任。"
+                    ]
+                }
+            ];
+
+            let playerName = "";
+            let playerSchool = "";
+            let currentIndex = 0;
+            let currentHintStep = 0; // 0, 1, 2, 3 (對應提示 1,2,3 與總結)
+
+            let playerPos = { x: gameData[0].x, y: gameData[0].y };
+            let targetPos = { x: gameData[0].x, y: gameData[0].y };
+            let isMoving = false;
+
+            const canvas = document.getElementById('map-canvas');
+            const ctx = canvas.getContext('2d');
+            const dialogModal = document.getElementById('dialog-modal');
+
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+                drawMap();
+            }
+            window.addEventListener('resize', resizeCanvas);
+
+            // 開始遊戲
+            document.getElementById('btn-start-game').addEventListener('click', function () {
+                const nameVal = document.getElementById('player-name').value.trim();
+                if (!nameVal) {
+                    alert("請先輸入姓名，成為金門平權時空探員！");
+                    return;
+                }
+                playerName = nameVal;
+                playerSchool = document.getElementById('player-school').value.trim();
+
+                document.getElementById('hud-user').textContent = `探員：${playerName}`;
+                document.getElementById('screen-start').classList.remove('active');
+                document.getElementById('screen-game').classList.add('active');
+
+                setTimeout(() => {
+                    resizeCanvas();
+                    openLevelDialog(0);
+                }, 100);
+            });
+
+            // 🎨 純 Canvas 手繪經典金門風景背景
+            function drawBackground(w, h, scaleX, scaleY) {
+                // 1. 天空漸層 (暮色金門)
+                const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.5);
+                skyGrad.addColorStop(0, "#3a1c14");
+                skyGrad.addColorStop(0.5, "#73331b");
+                skyGrad.addColorStop(1, "#c9713b");
+                ctx.fillStyle = skyGrad;
+                ctx.fillRect(0, 0, w, h);
+
+                // 2. 遠景：太武山連綿山脈
+                ctx.fillStyle = "#2d1610";
+                ctx.beginPath();
+                ctx.moveTo(0, h * 0.45);
+                ctx.bezierCurveTo(w * 0.15, h * 0.35, w * 0.3, h * 0.42, w * 0.45, h * 0.38);
+                ctx.bezierCurveTo(w * 0.6, h * 0.32, w * 0.75, h * 0.4, w * 0.9, h * 0.36);
+                ctx.lineTo(w, h * 0.42);
+                ctx.lineTo(w, h);
+                ctx.lineTo(0, h);
+                ctx.fill();
+
+                // 3. 中景：海洋與沙灘
+                const seaGrad = ctx.createLinearGradient(0, h * 0.4, 0, h * 0.55);
+                seaGrad.addColorStop(0, "#2c4c5e");
+                seaGrad.addColorStop(1, "#182b36");
+                ctx.fillStyle = seaGrad;
+                ctx.fillRect(0, h * 0.4, w, h * 0.15);
+
+                // 沙灘陸地
+                ctx.fillStyle = "#8a5c37";
+                ctx.fillRect(0, h * 0.52, w, h * 0.48);
+
+                // 4. 近景繪製：金門紅磚燕尾屋脊
+                drawKinmenHouse(ctx, 40 * scaleX, h * 0.42, 110 * scaleX, 60 * scaleY);
+                drawKinmenHouse(ctx, 520 * scaleX, h * 0.38, 120 * scaleX, 70 * scaleY);
+                drawKinmenHouse(ctx, 980 * scaleX, h * 0.4, 130 * scaleX, 75 * scaleY);
+
+                // 5. 風獅爺石雕藝術元素 (左側海岸)
+                drawWindLion(ctx, 80 * scaleX, h * 0.6, scaleX);
+            }
+
+            // 🏠 繪製閩南特色燕尾脊房子
+            function drawKinmenHouse(ctx, x, y, width, height) {
+                // 屋身 (紅磚)
+                ctx.fillStyle = "#a83e2a";
+                ctx.fillRect(x, y + height * 0.3, width, height * 0.7);
+
+                // 燕尾屋脊
+                ctx.fillStyle = "#4a1e15";
+                ctx.beginPath();
+                ctx.moveTo(x - 10, y + height * 0.1);
+                ctx.quadraticCurveTo(x + width * 0.5, y + height * 0.4, x + width + 10, y + height * 0.1);
+                ctx.quadraticCurveTo(x + width * 0.5, y + height * 0.15, x - 10, y + height * 0.1);
+                ctx.fill();
+
+                // 門窗
+                ctx.fillStyle = "#2b140e";
+                ctx.fillRect(x + width * 0.4, y + height * 0.5, width * 0.2, height * 0.5);
+            }
+
+            // 🦁 繪製金門海岸守護神風狮爺
+            function drawWindLion(ctx, x, y, scale) {
+                ctx.fillStyle = "#8c857b";
+                ctx.beginPath();
+                ctx.arc(x, y, 16 * scale, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillRect(x - 12 * scale, y + 10 * scale, 24 * scale, 30 * scale);
+
+                // 紅披風
+                ctx.fillStyle = "#cc2b1d";
+                ctx.beginPath();
+                ctx.moveTo(x - 12 * scale, y + 8 * scale);
+                ctx.lineTo(x + 12 * scale, y + 8 * scale);
+                ctx.lineTo(x + 18 * scale, y + 35 * scale);
+                ctx.lineTo(x - 18 * scale, y + 35 * scale);
+                ctx.fill();
+            }
+
+            // 繪製地圖主程式
+            function drawMap() {
+                const w = canvas.width;
+                const h = canvas.height;
+                const scaleX = w / 1180;
+                const scaleY = h / 520;
+
+                ctx.clearRect(0, 0, w, h);
+
+                // 1. 背景風情圖
+                drawBackground(w, h, scaleX, scaleY);
+
+                // 2. 石板探索步道 (古徑)
+                ctx.beginPath();
+                ctx.strokeStyle = "#d4af37";
+                ctx.lineWidth = 16 * scaleX;
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+                for (let i = 0; i < gameData.length; i++) {
+                    const node = gameData[i];
+                    const nx = node.x * scaleX;
+                    const ny = node.y * scaleY;
+                    if (i === 0) ctx.moveTo(nx, ny);
+                    else ctx.lineTo(nx, ny);
+                }
+                ctx.stroke();
+
+                // 步道內紋理
+                ctx.beginPath();
+                ctx.strokeStyle = "#5a2d0c";
+                ctx.lineWidth = 4 * scaleX;
+                ctx.setLineDash([6, 6]);
+                for (let i = 0; i < gameData.length; i++) {
+                    const node = gameData[i];
+                    const nx = node.x * scaleX;
+                    const ny = node.y * scaleY;
+                    if (i === 0) ctx.moveTo(nx, ny);
+                    else ctx.lineTo(nx, ny);
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // 3. 關卡節點與解鎖狀態
+                for (let i = 0; i < gameData.length; i++) {
+                    const node = gameData[i];
+                    const nx = node.x * scaleX;
+                    const ny = node.y * scaleY;
+
+                    ctx.beginPath();
+                    ctx.arc(nx, ny, 22 * scaleX, 0, Math.PI * 2);
+                    if (i < currentIndex) {
+                        ctx.fillStyle = "#2e8b57"; // 已完成
+                    } else if (i === currentIndex) {
+                        ctx.fillStyle = "#ffd700"; // 當前關卡
+                    } else {
+                        ctx.fillStyle = "#555555"; // 未解鎖
+                    }
+                    ctx.fill();
+                    ctx.strokeStyle = "#ffffff";
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+
+                    // Icon 符號
+                    ctx.font = `${18 * scaleX}px sans-serif`;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(i > currentIndex ? "🔒" : node.icon, nx, ny);
+
+                    // 地名標籤卡
+                    ctx.fillStyle = "rgba(42, 15, 10, 0.85)";
+                    ctx.fillRect(nx - 42 * scaleX, ny + 28 * scaleY, 84 * scaleX, 20 * scaleY);
+                    ctx.fillStyle = "#ffd700";
+                    ctx.font = `bold ${11 * scaleX}px sans-serif`;
+                    ctx.fillText(node.locationName, nx, ny + 38 * scaleY);
+                }
+
+                // 4. 時空探員 Avatar (🕵️‍♂️)
+                const px = playerPos.x * scaleX;
+                const py = playerPos.y * scaleY;
+
+                ctx.font = `${34 * scaleX}px sans-serif`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("🕵️‍♂️", px, py - 8);
+
+                // 探員名字卡
+                ctx.fillStyle = "#701c15";
+                ctx.fillRect(px - 32, py - 36, 64, 16);
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 10px sans-serif";
+                ctx.fillText(playerName, px, py - 28);
+            }
+
+            // 平滑移動動畫
+            function updatePlayerMove() {
+                if (!isMoving) return;
+
+                const dx = targetPos.x - playerPos.x;
+                const dy = targetPos.y - playerPos.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 4) {
+                    playerPos.x = targetPos.x;
+                    playerPos.y = targetPos.y;
+                    isMoving = false;
+                    drawMap();
+                    openLevelDialog(currentIndex);
+                } else {
+                    playerPos.x += (dx / dist) * 6;
+                    playerPos.y += (dy / dist) * 6;
+                    drawMap();
+                    requestAnimationFrame(updatePlayerMove);
+                }
+            }
+
+            function moveToNextLevel() {
+                if (currentIndex < gameData.length) {
+                    targetPos.x = gameData[currentIndex].x;
+                    targetPos.y = gameData[currentIndex].y;
+                    isMoving = true;
+                    requestAnimationFrame(updatePlayerMove);
+                } else {
+                    showResult();
+                }
+            }
+
+            // 打開闖關視窗
+            function openLevelDialog(index) {
+                const data = gameData[index];
+                document.getElementById('hud-stats').textContent = `進度：關卡 ${index + 1} / 7`;
+                document.getElementById('level-scenario').textContent = `🗺️ 時空現場（${data.locationName}）：${data.scenario}`;
+                document.getElementById('level-proverb-zh').textContent = data.proverb_zh;
+                document.getElementById('level-proverb-tl').textContent = data.proverb_tl;
+                document.getElementById('level-question').textContent = `${index + 1}. ${data.question}`;
+
+                document.getElementById('scaffold-box').style.display = 'none';
+                currentHintStep = 0;
+
+                const container = document.getElementById('options-container');
+                container.innerHTML = '';
+                data.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerHTML = `<span class="option-key">${opt.key}</span><span>${opt.text}</span>`;
+                    btn.onclick = () => handleAnswer(opt.correct);
+                    container.appendChild(btn);
+                });
+
+                dialogModal.classList.add('active');
+            }
+
+            // 播放老師錄音（與 TTS 備援）
+            document.getElementById('btn-play-audio').addEventListener('click', function () {
+                const currentData = gameData[currentIndex];
+                const audio = new Audio(currentData.audio);
+
+                audio.play().catch(() => {
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(currentData.proverb_zh);
+                        utterance.lang = 'zh-TW';
+                        utterance.rate = 0.8;
+                        window.speechSynthesis.speak(utterance);
+                    }
+                });
+            });
+
+            // 答題判定
+            function handleAnswer(isCorrect) {
+                if (isCorrect) {
+                    alert("🎉 太棒了！您成功破解了這個聚落的性別迷思！");
+                    dialogModal.classList.remove('active');
+                    currentIndex++;
+                    moveToNextLevel();
+                } else {
+                    showHintStep();
+                }
+            }
+
+            // 獨立 3 階提示展開
+            function showHintStep() {
+                const currentData = gameData[currentIndex];
+                const scaffoldBox = document.getElementById('scaffold-box');
+                const badge = document.getElementById('hint-level-badge');
+                const contentText = document.getElementById('hint-content-text');
+                const btnNextHint = document.getElementById('btn-next-hint');
+
+                scaffoldBox.style.display = 'block';
+
+                if (currentHintStep < currentData.hints.length) {
+                    badge.textContent = `提示 ${currentHintStep + 1}/3`;
+                    contentText.textContent = currentData.hints[currentHintStep];
+                    currentHintStep++;
+                    btnNextHint.style.display = 'inline-block';
+                } else {
+                    badge.textContent = '平權導師總結';
+                    contentText.textContent = currentData.explanation;
+                    btnNextHint.style.display = 'none';
+                }
+            }
+
+            document.getElementById('btn-next-hint').addEventListener('click', showHintStep);
+
+            // 通關證書
+            function showResult() {
+                document.getElementById('screen-game').classList.remove('active');
+                document.getElementById('screen-result').classList.add('active');
+
+                document.getElementById('cert-display-school').textContent = playerSchool || "";
+                document.getElementById('cert-display-name').textContent = playerName;
+                document.getElementById('cert-display-score').textContent = 7;
+
+                const today = new Date();
+                document.getElementById('cert-display-date').textContent = `${today.getFullYear()} 年 ${today.getMonth() + 1} 月 ${today.getDate()} 日`;
+            }
+
+            document.getElementById('btn-print-cert').addEventListener('click', () => window.print());
+            document.getElementById('btn-restart-game').addEventListener('click', () => location.reload());
+        });
+    </script>
+</body>
+</html>
